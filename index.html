@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FREE SILENTDARK</title>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 { color: #333; }
+    p { color: #555; }
+
+    .vote-buttons {
+      margin-top: 20px;
+    }
+
+    .vote-buttons button {
+      padding: 10px 25px;
+      margin: 10px;
+      font-size: 18px;
+      cursor: pointer;
+    }
+
+    .results {
+      margin-top: 20px;
+      font-size: 18px;
+      color: #333;
+    }
+
+    .disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+
+    #emoji {
+      font-size: 60px;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      display: none;
+      z-index: 999;
+    }
+  </style>
+</head>
+<body>
+  <h1>FREE SILENTDARK</h1>
+  <p>SILENTDARK GOT FRAMED BY ES15 THAT PUSSY.</p>
+  <p>(c) 2025</p>
+  <p>
+    <a href="https://ES15PUSSY.com" target="_blank" rel="noopener noreferrer">
+      FREE SILENTDARK
+    </a>
+  </p>
+
+  <div class="vote-buttons">
+    <button id="yes-button" onclick="vote('yes')">Yes</button>
+    <button id="no-button" onclick="vote('no')">No</button>
+  </div>
+
+  <div class="results">
+    <p>Yes Votes: <span id="yes-votes">0</span></p>
+    <p>No Votes: <span id="no-votes">0</span></p>
+  </div>
+
+  <div id="emoji">😢</div>
+
+  <script>
+    // Your Firebase config goes here 👇
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+      databaseURL: "https://YOUR_PROJECT_ID.firebaseio.com",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_PROJECT_ID.appspot.com",
+      messagingSenderId: "YOUR_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
+
+    // Init Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    const yesEl = document.getElementById('yes-votes');
+    const noEl = document.getElementById('no-votes');
+    const emoji = document.getElementById('emoji');
+    let voted = localStorage.getItem('hasVoted');
+
+    // Realtime listeners
+    db.ref("votes/yes").on("value", snapshot => {
+      yesEl.textContent = snapshot.val() || 0;
+    });
+
+    db.ref("votes/no").on("value", snapshot => {
+      noEl.textContent = snapshot.val() || 0;
+    });
+
+    function vote(option) {
+      if (voted) {
+        alert("You already voted!");
+        return;
+      }
+
+      if (option === 'yes') {
+        addVote('yes');
+      } else if (option === 'no') {
+        emoji.style.display = 'block';
+        emoji.textContent = '😢';
+        setTimeout(() => {
+          emoji.textContent = '😄';
+          addVote('yes');
+          setTimeout(() => {
+            emoji.style.display = 'none';
+          }, 1000);
+        }, 1500);
+      }
+    }
+
+    function addVote(type) {
+      const ref = db.ref(`votes/${type}`);
+      ref.transaction(current => (current || 0) + 1);
+      localStorage.setItem('hasVoted', type);
+      voted = type;
+      disableButtons();
+    }
+
+    function disableButtons() {
+      document.getElementById('yes-button').disabled = true;
+      document.getElementById('no-button').disabled = true;
+      document.getElementById('yes-button').classList.add('disabled');
+      document.getElementById('no-button').classList.add('disabled');
+    }
+
+    if (voted) {
+      disableButtons();
+    }
+  </script>
+</body>
+</html>
